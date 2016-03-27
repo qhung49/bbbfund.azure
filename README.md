@@ -9,14 +9,14 @@ Web app for viewing and managing BBBFund, hosted on Azure https://bbbfund.azurew
 # Development, with Hot Reloading
 #### One time Environment Variable Setup:
 For the website:
-db_writer_login
-db_writer_password
-jwt_secret
-user_admin_password
-user_investor_password
+* db_writer_login
+* db_writer_password
+* jwt_secret
+* user_admin_password
+* user_investor_password
 
 For the WebJobs script:
-SQLAZURECONNSTR_db_writer
+* SQLAZURECONNSTR_db_writer
 
 ```bash
 git clone https://github.com/qhung49/bbbfund.azure.git
