@@ -29,13 +29,13 @@ export default class ContainerAllocationCharts extends React.Component {
     
     var assetAllocationLayout = {
       title: "Asset Allocation",
-      width: (jQuery(window).width() >= 1024 ? 455 : 345),
+      width: (jQuery(window).width() >= 1024 ? 455 : 420),
       autosize: true
     };
     
     var stockAllocationlayout = {
         title: "Stock Allocation",
-        width: (jQuery(window).width() >= 1024 ? 455 : 345),
+        width: (jQuery(window).width() >= 1024 ? 455 : 420),
         autosize: true
     };
     
