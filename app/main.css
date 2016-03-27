@@ -1,0 +1,28 @@
+.navbar-brand {
+  padding-top: 0px;
+}
+
+.griddle {
+  margin-bottom: 20px;
+}
+
+.dropdown-menu input {
+  margin-bottom: 20px;
+}
+
+.dropdown-menu {
+  width: 200px;
+  padding: 10px;
+}
+
+.btn-group {
+  margin: 0px 5px 5px 0px;
+}
+
+.filter-container {
+  margin-bottom: 5px;
+}
+
+.container {
+  min-width: 480px;
+}
