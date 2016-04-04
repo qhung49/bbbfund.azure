@@ -62,6 +62,7 @@ function processMarketData(markets, data) {
   // first 2 market data is for VN and VN30
   for (var i=0; i< 2; ++i) {
     var marketDetails = data[i].split(',');
+    markets[i].indexRaw = parseFloat(marketDetails[3]);
     markets[i].index = (parseFloat(marketDetails[3]) / markets[i].startingIndex * 100);
     markets[i].percentageChange = parseFloat(marketDetails[5]);
   }
@@ -108,7 +109,7 @@ function isBusinessHour(date) {
   return true;
 }
 
-function constructHomeResponse(investors, stocks, indexes, lastSummary, hscData, fundName) {
+function constructHomeResponse(stocks, indexes, lastSummary, hscData, fundName) {
   var summary = { 
     markets: [
       {name: 'VN', startingIndex: 574.3, index: 0}, 
@@ -128,7 +129,7 @@ function constructHomeResponse(investors, stocks, indexes, lastSummary, hscData,
   summary.stockPurchaseValue = stockData.reduce( ((previous,current) => previous + current.purchasePrice * current.numberShares), 0);
   summary.stockCurrentValue = stockData.reduce( ((previous,current) => previous + current.currentPrice * current.numberShares), 0);
   summary.cash = cashData.numberShares * cashData.purchasePrice;
-  summary.capital = investors.reduce( ((previous,current) => previous + current.total), 0);
+  summary.capital = lastSummary.capital;
   summary.profit = summary.stockCurrentValue + summary.cash - summary.capital;
   
   var fundIndexes = indexes.markets.find(m => m.name === fundName).index;

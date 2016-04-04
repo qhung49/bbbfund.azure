@@ -4,7 +4,7 @@ import PlotlyGraph from './PlotlyGraph';
 export default class IndexPerformanceGraph extends React.Component {
   render() {
     var graphData = [];
-    var displayTimestamps = this.props.data.timestamp.map(t => (new Date(t)).toISOString().slice(0,10));
+    var displayTimestamps = this.props.data.timestamp;
     this.props.data.markets.forEach( market => {
       graphData.push({
         type:"scatter",

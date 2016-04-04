@@ -95,6 +95,10 @@ UPDATE Portfolio
 SET number_shares = number_shares + ${data.value * 100} 
 WHERE stock_name = 'CASH'
 
+UPDATE Summary_History
+SET capital = capital + ${data.value} 
+WHERE timestamp = (SELECT TOP 1 timestamp from [dbo].[Summary_History] ORDER BY timestamp DESC)
+
 COMMIT TRAN T1
 `;
           return DatabaseService.executeQueryAsync(query);

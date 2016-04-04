@@ -18,4 +18,13 @@ SELECT TOP 1 [timestamp], [profit], [capital], [dividend], [fee]
       }
     });
   }
+  
+  static summarizeAsync(fund) {
+    var timestamp = (new Date()).toISOString().slice(0,10);
+    var query = `
+INSERT INTO [dbo].[Summary_History]([timestamp], [profit], [capital], [dividend], [fee]) 
+VALUES('${timestamp}',${fund.profit}, ${fund.capital}, ${fund.dividend}, ${fund.fee})
+`;
+    return DatabaseService.executeQueryAsync(query);
+  }
 }

@@ -4,10 +4,7 @@ var DatabaseService = require('./DatabaseService.js');
 
 module.exports = class Stock {
   static getAllAsync() {
-    var query = `
-SELECT stock_name as name, number_shares, purchase_price
-  FROM [dbo].[Portfolio]
-`;
+    var query = 'SELECT stock_name as name, number_shares, purchase_price FROM [dbo].[Portfolio]';
     return DatabaseService.executeQueryAsync(query).then(function(dataArray) {
       var result = [];
       dataArray.forEach(function(data) {
@@ -40,24 +37,37 @@ SELECT name, trade_price, reference
   }
   
   static getTransactionsAsync() {
-      var query = `
+    var query = `
 SELECT [transactionId], [created], [stock_name], [type], [properties]
   FROM [dbo].[Transaction_Stock]
 order by [created]
 `;
-      return DatabaseService.executeQueryAsync(query)
-        .then(function(dataArray) {
-            return dataArray.map(function(t) {
-              return {
-                transactionId: t.transactionId,
-                created: new Date(t.created).getTime(),
-                stock: t.stock_name,
-                type: t.type,
-                properties: JSON.parse(t.properties)
-              };
-            });
-          });
-    }
+    return DatabaseService.executeQueryAsync(query).then(function(dataArray) {
+      return dataArray.map(function(t) {
+        return {
+          transactionId: t.transactionId,
+          created: new Date(t.created).getTime(),
+          stock: t.stock_name,
+          type: t.type,
+          properties: JSON.parse(t.properties)
+        };
+      });
+    });
+  }
+  
+  static summarizeAsync(stocks) {
+    var timestamp = (new Date()).toISOString().slice(0,10);
+    var query = '';
+    stocks.forEach(function(stockData) {
+      var stock = stockData.split(',');
+      if (stock.length < 12) return;
+      query += `
+INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
+VALUES('${timestamp}','${stock[0]}', ${stock[1]}, ${stock[2]}, ${stock[3]}, ${stock[10]}, ${stock[11]})
+`;
+    });
+    return DatabaseService.executeQueryAsync(query);
+  }
   
   static buyAsync(data) {
     // data: {name, numberShares, price}

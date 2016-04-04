@@ -45,7 +45,7 @@ export default class StockTable extends React.Component {
 class CurrentValueComponent extends React.Component {
   render() {
     return(
-      <div>{Utilities.numberWithCommas(this.props.data)}</div>
+      <div>{Utilities.numberWithCommas(this.props.data.toFixed(2))}</div>
     );
   }
 } 
