@@ -26,7 +26,7 @@ export default class StockBuyForm extends React.Component {
         <div className="dropdown-menu">
           <form className="form">
             <input className="form-control input-sm" ref="stockName" type="text" placeholder="Stock Name" required />
-            <input className="form-control input-sm" ref="price" type="text" placeholder="Price (10000 VND)" required />
+            <input className="form-control input-sm" ref="price" type="text" placeholder="Price (x1000 VND)" required />
             <input className="form-control input-sm" ref="numberShares" type="text" placeholder="Number of shares" required />
             <button className="btn btn-primary" type="submit" style={{width: "100%"}} onClick={this.handleSubmit.bind(this)}>Submit</button> 
           </form>

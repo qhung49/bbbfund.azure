@@ -82,7 +82,7 @@ export default class InvestmentAddForm extends React.Component {
             <div className="form-group">
               <input className="form-control" ref="investorName" type="text" placeholder="Investor Name" required />
             </div> <div className="form-group">
-              <input className="form-control" ref="value" type="text" placeholder="Value (x10000 VND)" required />
+              <input className="form-control" ref="value" type="text" placeholder="Value (x1000 VND)" required />
             </div> <div className="form-group">
               <input className="form-control" ref="rate" type="text" placeholder="Rate = 9%" readOnly required />
             </div> <div className="form-group">

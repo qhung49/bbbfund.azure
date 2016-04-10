@@ -10,7 +10,7 @@ var config = {
   server: 'bbbfund-dbserver.database.windows.net',
   
   options: {
-    database: 'bbbfund-db',
+    database: 'officialdb',
     rowCollectionOnRequestCompletion: true,
     encrypt: true // for SQL Azure
   }

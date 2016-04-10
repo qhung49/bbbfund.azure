@@ -1,8 +1,11 @@
 import React from 'react';
-import Plotly from 'plotly.js';
+import Plotly from 'plotly.js/lib/core';
+import plolyPie from 'plotly.js/lib/pie';
+
+Plotly.register([plolyPie]);
 
 export default class PlotlyGraph extends React.Component {
-  
+    
   componentDidMount() {
     Plotly.plot(this.refs.plotContainer, this.props.data, this.props.layout, this.props.config);
   }
@@ -14,16 +17,8 @@ export default class PlotlyGraph extends React.Component {
   }
   
   render() {
-    var className = "col-sm-";
-    if (this.props.layout.width <= 500) {
-      className += "6";
-    }
-    else {
-      className += "12"; 
-    }
-      
     return (
-      <div ref = 'plotContainer' className={className} />
+      <div ref = 'plotContainer' />
     );
   }
 }

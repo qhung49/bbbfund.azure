@@ -25,7 +25,7 @@ export default class StockAddDividendForm extends React.Component {
         <div className="dropdown-menu">
           <form className="form">
             <input className="form-control input-sm" ref="stockName" type="text" placeholder="Stock Name" required />
-            <input className="form-control input-sm" ref="dividend" type="text" placeholder="Dividend (10000 VND)" required />
+            <input className="form-control input-sm" ref="dividend" type="text" placeholder="Dividend (x1000 VND)" required />
             <button className="btn btn-primary" type="submit" style={{width: "100%"}} onClick={this.handleSubmit.bind(this)}>Submit</button>
           </form>
         </div>

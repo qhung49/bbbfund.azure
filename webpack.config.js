@@ -29,8 +29,7 @@ const common = {
   },
   
   externals: {
-    "jquery": "jQuery",
-    "plotly.js": "Plotly"
+    "jquery": "jQuery"
   },
   
   module: {
@@ -44,6 +43,10 @@ const common = {
         test: /\.jpe?g$|\.gif$|\.png$|\.svg$|\.woff$|\.ttf$|\.wav$|\.mp3$/, 
         loader: "file?name=[name].[ext]",
         include: PATHS.app
+      },
+      {
+        test: /node_modules/,
+        loader: 'ify'
       }
     ]
   },
@@ -75,9 +78,7 @@ if (isDevelopment()) {
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': '"development"'
       }),
-    ],
-    
-    devtool: 'eval-source-map'
+    ]
   });
 }
 else {
@@ -107,7 +108,8 @@ else {
         compress: {
           warnings: false
         }
-      })
+      }),
+      new webpack.optimize.OccurenceOrderPlugin()
     ]
   });
 }

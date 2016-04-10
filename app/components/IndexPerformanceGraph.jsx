@@ -38,7 +38,7 @@ export default class IndexPerformanceGraph extends React.Component {
       },
       "title":"BBBIndex Graph",
       width: layoutWidth,
-      height: layoutWidth * 3 /4,
+      height: layoutWidth * 0.5,
     };
     
     return (
