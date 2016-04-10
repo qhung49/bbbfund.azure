@@ -3,6 +3,7 @@ import * as Utilities from './Utilities.js';
 
 export default class SummaryTable extends React.Component {
   render() {
+    var totalValue = this.props.data.capital + this.props.data.profit;
     return (
       <table className="table table-striped table-bordered">
         <caption>Summary</caption>
@@ -27,6 +28,9 @@ export default class SummaryTable extends React.Component {
           </tr>
           <tr> 
             <td>Dividend</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.dividend.toFixed(2))}</td> 
+          </tr>
+          <tr className="success"> 
+            <td>Total Value</td><td className="text-right">{Utilities.numberWithCommas(totalValue.toFixed(2))}</td> 
           </tr>
         </tbody>
       </table>
