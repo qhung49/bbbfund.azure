@@ -92,7 +92,7 @@ INSERT INTO Transaction_Investor (transactionId, investorId, start_date, end_dat
 VALUES (NEWID(), ${investorId}, '${data.start}', '${data.end}', ${data.rate}, ${data.value}, 'From website')
 
 UPDATE Portfolio
-SET number_shares = number_shares + ${data.value * 100} 
+SET number_shares = number_shares + ${data.value} 
 WHERE stock_name = 'CASH'
 
 UPDATE Summary_History
