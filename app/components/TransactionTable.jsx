@@ -13,7 +13,7 @@ export default class TransactionTable extends React.Component {
           "Investor": item.name,
           "Amount": Utilities.numberWithCommas(item.value.toFixed(0)),
           "Start": (new Date(item.startDate)).toISOString().slice(0,10),
-          "End": (new Date(item.endDate)).toISOString().slice(0,10),
+          "End": item.endDate === 0 ? "" : (new Date(item.endDate)).toISOString().slice(0,10),
           "Rate": item.rate.toFixed(2),
         };
       });
