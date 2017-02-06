@@ -54,8 +54,6 @@ export default class TransactionTable extends React.Component {
       visibleColumns.push("Action");
     }
 
-    console.log( this.props);
-
     var temp = this.props.finalizeInvestment;
     if (this.props.data) {
       investorTransactions = this.props.data.investors.map(function(item) {        

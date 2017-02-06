@@ -22,7 +22,7 @@ export default class FinalizeButtonComponent extends React.Component {
   render() {
     return (
       <div className="btn-group">
-        <button type="button" className="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" className="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled={this.props.rowData.End}>
           Finalize <span className="caret"></span>
         </button>
         <div className="dropdown-menu">
