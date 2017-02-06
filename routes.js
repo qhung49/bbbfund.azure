@@ -106,6 +106,22 @@ router.post('/protected/addInvestment', function(req, res, next) {
     .catch(next);
 })
 
+router.post('/protected/finalizeInvestment', function(req, res, next) {
+  if (req.user.role !== 'admin') {
+    var err = new Error('Access Denied');
+    err.status = 403;
+    next(err);
+    return;
+  }
+  Investor.finalizeTransactionAsync(req.body)
+    .then(function() {
+      // Invalidate cache
+      databaseCache = null;
+      res.json();
+    })
+    .catch(next);
+})
+
 router.post('/protected/buyStock', function(req, res, next) {
   if (req.user.role !== 'admin') {
     var err = new Error('Access Denied');

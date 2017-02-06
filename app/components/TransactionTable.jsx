@@ -1,12 +1,62 @@
 import React from 'react';
 import Griddle from 'griddle-react';
 import * as Utilities from './Utilities.js';
+import FinalizeButtonComponent from './FinalizeButtonComponent';
 
 export default class TransactionTable extends React.Component {
   
   render() {
     var investorTransactions = [];
-    var stockTransactions = []; 
+    var stockTransactions = [];
+
+    var investorTransactionsColumnMetadata = [
+        {
+          "columnName": "Investor",
+          "order": 1,
+          "locked": false,
+          "visible": true
+        },
+        {
+          "columnName": "Amount",
+          "order": 2,
+          "locked": false,
+          "visible": true
+        },
+        {
+          "columnName": "Start",
+          "order": 3,
+          "locked": false,
+          "visible": true
+        },
+        {
+          "columnName": "End",
+          "order": 4,
+          "locked": false,
+          "visible": true
+        },
+        {
+          "columnName": "Rate",
+          "order": 5,
+          "locked": false,
+          "visible": true
+        },
+        {
+          "columnName": "Action",
+          "order": 6,
+          "locked": false,
+          "visible": true,
+          "customComponent": FinalizeButtonComponent
+        }
+      ];
+    var visibleColumns = ["Investor", "Amount", "Start", "End", "Rate"];
+    if (this.props.loggedIn === 'admin')
+    {
+      visibleColumns.push("Action");
+    }
+
+    console.log( this.props);
+
+    var temp = this.props.finalizeInvestment;
     if (this.props.data) {
       investorTransactions = this.props.data.investors.map(function(item) {        
         return {
@@ -15,8 +65,13 @@ export default class TransactionTable extends React.Component {
           "Start": (new Date(item.startDate)).toISOString().slice(0,10),
           "End": item.endDate === 0 ? "" : (new Date(item.endDate)).toISOString().slice(0,10),
           "Rate": item.rate.toFixed(2),
+          "Action": {
+            transactionId: item.transactionId,
+            finalizeInvestment: temp.bind(this)
+          }
         };
       });
+
       stockTransactions = this.props.data.stocks.map(function(item) {
         var details = null; JSON.stringify(item.properties);
         switch (item.type) {
@@ -36,7 +91,7 @@ export default class TransactionTable extends React.Component {
           "Type": item.type.toUpperCase(),
           "Details": details,
         };
-      });;
+      });
     }
     
     return (
@@ -53,6 +108,8 @@ export default class TransactionTable extends React.Component {
                    initialSort="Start" 
                    initialSortAscending={false} 
                    showFilter={true}
+                   columnMetadata={investorTransactionsColumnMetadata}
+                   columns={visibleColumns}
                    noDataMessage="Loading investor transaction data..." />
           <hr />
           <Griddle results={stockTransactions} 

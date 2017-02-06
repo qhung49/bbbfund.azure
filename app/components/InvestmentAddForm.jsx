@@ -9,23 +9,15 @@ export default class InvestmentAddForm extends React.Component {
     
     this.state = {
       startDate: moment(),
-      endDate: moment().add(1,'years'),
       submitButtonDisabled: false,
       alertMessage: null
     }
   }
   
-  handleTimeChange(isStartDate, date) {
-    if (isStartDate) {
-      this.setState({
+  handleTimeChange(startDate) {
+    this.setState({
         startDate: date
       });
-    }
-    else {
-      this.setState({
-        endDate: date
-      });
-    }
   }
   
   handleSubmit(event) {
@@ -34,8 +26,7 @@ export default class InvestmentAddForm extends React.Component {
       name: this.refs.investorName.value,
       value: parseFloat(this.refs.value.value),
       rate: 0.09,
-      start: this.state.startDate.format('YYYY/MM/DD'),
-      end: this.state.endDate.format('YYYY/MM/DD')
+      start: this.state.startDate.format('YYYY/MM/DD')
     }
     if (isNaN(investment.value)) {
       this.setState({
@@ -86,9 +77,7 @@ export default class InvestmentAddForm extends React.Component {
             </div> <div className="form-group">
               <input className="form-control" ref="rate" type="text" placeholder="Rate = 9%" readOnly required />
             </div> <div className="form-group">
-              <DatePicker ref="startDate" dateFormat="MMMM DD, YYYY" placeholderText="Start Date" selected={this.state.startDate} onChange={this.handleTimeChange.bind(this, true)} />
-            </div> <div className="form-group">
-              <DatePicker ref="endDate" dateFormat="MMMM DD, YYYY" placeholderText="End Date" selected={this.state.endDate} onChange={this.handleTimeChange.bind(this, false)} />
+              <DatePicker ref="startDate" dateFormat="MMMM DD, YYYY" placeholderText="Start Date" selected={this.state.startDate} onChange={this.handleTimeChange.bind(this)} />
             </div> <div className="form-group"> 
               <button className="btn btn-primary" refs="submit" type="submit" disabled={this.state.submitButtonDisabled} onClick={this.handleSubmit.bind(this)}>Submit</button>
             </div>

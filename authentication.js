@@ -26,7 +26,7 @@ function setup(app) {
   app.post('/authenticate', function(req, res, next) {
     //TODO validate req.body.username and req.body.password
     //if is invalid, return 401
-    var user = users.find( u => u.username === req.body.username);
+    var user = users.find( u => u.username.toLowerCase() === req.body.username.toLowerCase());
     if ( user && user.password === req.body.password) {
       // We are sending the profile inside the token
       var token = jwt.sign(user, jwtSecret, { expiresIn: tokenExpireSeconds });

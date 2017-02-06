@@ -65,6 +65,25 @@ export default class App extends React.Component {
         }
       });
   }
+
+  finalizeInvestment(investment) {
+    var source = 'api/protected/finalizeInvestment';
+    if (process.env.NODE_ENV === 'development') {
+      source = 'http://localhost:1337/' + source;
+    }
+
+    return axios.post(source, investment)
+      .then(function() {
+        location.reload(false);
+      })
+      .catch(function(err) {
+        if (err.status !== 500 && err.data.error) {  
+          throw err.data.error;
+        } else {
+          throw "Server error, please try again later."
+        }
+      });
+  }
   
   handleStockAction(type, data) {
     const sourceForType = {
@@ -190,7 +209,12 @@ export default class App extends React.Component {
           </div>
         </div>
         <IndexPerformanceGraph data={this.state.indexes} />
-        {this.state.loggedIn ? <TransactionTable data={this.state.transactions} getTransactions={this.getTransactions.bind(this)} /> : null}
+        {this.state.loggedIn ? 
+          <TransactionTable data={this.state.transactions} 
+                            loggedIn={this.state.loggedIn}
+                            getTransactions={this.getTransactions.bind(this)} 
+                            finalizeInvestment={this.finalizeInvestment.bind(this)} /> 
+          : null}
       </div>
     );
   }
