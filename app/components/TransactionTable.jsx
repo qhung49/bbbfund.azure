@@ -104,7 +104,7 @@ export default class TransactionTable extends React.Component {
         <div className="collapse col-xs-12" id="showTransactionsCollapse">
           <Griddle results={investorTransactions} 
                    initialSort="Start" 
-                   initialSortAscending={false} 
+                   initialSortAscending={true} 
                    showFilter={true}
                    columnMetadata={investorTransactionsColumnMetadata}
                    columns={visibleColumns}

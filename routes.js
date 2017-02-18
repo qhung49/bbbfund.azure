@@ -210,6 +210,10 @@ function summarizeDaily() {
       console.log('Error during daily summary:' + error);
     });
 }
+
+// Summarize when the app is restarted
+summarizeDaily();
+
 // Cron job for daily summary at 8:05 UTC time monday to friday
 cron.schedule('5 0 8 * * 1-5', summarizeDaily);
 
