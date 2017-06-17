@@ -16,7 +16,7 @@ export default class InvestmentAddForm extends React.Component {
   
   handleTimeChange(startDate) {
     this.setState({
-        startDate: date
+        startDate: startDate
       });
   }
   
