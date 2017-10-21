@@ -12,7 +12,7 @@ export default class SummaryTable extends React.Component {
             <td>Stock Purchase Price</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.stockPurchaseValue.toFixed(2))}</td> 
           </tr> 
           <tr> 
-            <td>Stock Current Market Price</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.stockCurrentValue.toFixed(2))}</td> 
+            <td>Stock Current Price</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.stockCurrentValue.toFixed(2))}</td> 
           </tr>
           <tr> 
             <td>Cash</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.cash.toFixed(2))}</td> 
