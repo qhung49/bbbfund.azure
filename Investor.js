@@ -123,6 +123,14 @@ WHERE transactionId='${data.transactionId}'
 INSERT INTO [dbo].[Transaction_Investor]
 VALUES(NEWID(), 1, '${data.endDate}', NULL, 0.00, 'Finalize of ${data.transactionId}', -${data.withdrawValue})
 
+UPDATE Portfolio
+SET number_shares = number_shares - ${data.withdrawValue} 
+WHERE stock_name = 'CASH'
+
+UPDATE Summary_History
+SET capital = capital - ${data.withdrawValue}
+WHERE timestamp = (SELECT TOP 1 timestamp from [dbo].[Summary_History] ORDER BY timestamp DESC)
+
 COMMIT TRAN T1
 `;
     console.log(query);
