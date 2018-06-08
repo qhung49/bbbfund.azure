@@ -15,9 +15,6 @@ For the website:
 * user_admin_password
 * user_investor_password
 
-For the WebJobs script:
-* SQLAZURECONNSTR_db_writer
-
 ```bash
 git clone https://github.com/qhung49/bbbfund.azure.git
 npm install
