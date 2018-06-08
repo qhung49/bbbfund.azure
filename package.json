@@ -1,7 +1,11 @@
 {
   "name": "bbbfund-azure",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/qhung49/bbbfund.azure"
+  },
   "engines": {
-    "node": "4.3.0"
+    "node": "8.11.1"
   },
   "version": "1.0.0",
   "description": "",
