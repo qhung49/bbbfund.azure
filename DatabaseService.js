@@ -86,8 +86,8 @@ function getHSCDataAsync(stocks) {
   var stockCookie = stocks.map(stock => stock.name).join('|');
   var headers = { 'Cookie': '_kieHoSESF=' + stockCookie + '; _kieHNXSF=' + stockCookie };
   return axios.all([
-    axios.get('http://priceonline.hsc.com.vn/Process.aspx?Type=MS', {headers: headers}),
-    axios.get('http://priceonline.hsc.com.vn/hnpriceonline/Process.aspx?Type=MS', {headers: headers}),
+    axios.get('http://priceboard.hsc.com.vn/Process.aspx?Type=MS', {headers: headers}),
+    axios.get('http://priceboard.hsc.com.vn/hnpriceonline/Process.aspx?Type=MS', {headers: headers}),
   ])
     .then(axios.spread(function(hcmResponse, hnResponse) {
       var marketData = hcmResponse.data.split('^')[0].split('|');
