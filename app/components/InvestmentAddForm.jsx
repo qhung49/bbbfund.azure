@@ -25,7 +25,7 @@ export default class InvestmentAddForm extends React.Component {
     var investment = {
       name: this.refs.investorName.value,
       value: parseFloat(this.refs.value.value),
-      rate: 0.09,
+      rate: parseFloat(this.refs.rate.value),
       start: this.state.startDate.format('YYYY/MM/DD')
     }
     if (isNaN(investment.value)) {
@@ -75,7 +75,7 @@ export default class InvestmentAddForm extends React.Component {
             </div> <div className="form-group">
               <input className="form-control" ref="value" type="text" placeholder="Value (x1000 VND)" required />
             </div> <div className="form-group">
-              <input className="form-control" ref="rate" type="text" placeholder="Rate = 9%" readOnly required />
+              <input className="form-control" ref="rate" type="text" placeholder="Rate (e.g 0.09 or 0.1)" required />
             </div> <div className="form-group">
               <DatePicker ref="startDate" dateFormat="MMMM DD, YYYY" placeholderText="Start Date" selected={this.state.startDate} onChange={this.handleTimeChange.bind(this)} />
             </div> <div className="form-group"> 
