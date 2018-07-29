@@ -5,7 +5,7 @@ import * as Utilities from './Utilities.js';
 export default class InvestorTable extends React.Component {
   
   render() {
-    var results = this.props.data.filter(item => item.investorId !== 1).map( function(item) {
+    var results = this.props.data.map( function(item) {
       return {
         "Name": item.name,
         "Total": item.total,
