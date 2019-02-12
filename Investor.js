@@ -46,7 +46,7 @@ order by investorId
 select transactionId, name, start_date, end_date, rate, value
 from Transaction_Investor left join Investor 
 on Investor.investorId = Transaction_Investor.investorId
-where Transaction_Investor.notes = 'From website'
+where Transaction_Investor.investorId <> 1
 order by start_date DESC
 `;
     return DatabaseService.executeQueryAsync(query)
