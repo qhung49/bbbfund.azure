@@ -6,11 +6,13 @@ import moment from 'moment';
 export default class FinalizeButtonComponent extends React.Component {
   handleSubmit(event) {
     event.preventDefault();
+    
+    console.log("Input data: " + this.props.data);
     var data = {
       transactionId: this.props.data.transactionId,
       endDate: moment().format('YYYY/MM/DD'),
       withdrawValue: parseFloat(this.refs.withdrawValue.value),
-      originalValue: parseFloat(this.props.data)
+      originalValue: parseFloat(this.props.data.value)
     }
     
     if (isNaN(data.withdrawValue)) {
@@ -21,7 +23,6 @@ export default class FinalizeButtonComponent extends React.Component {
   }
   
   render() {
-    console.log(this.props.data);
     return (
       <div className="btn-group">
         <button type="button" className="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled={this.props.rowData.End}>
