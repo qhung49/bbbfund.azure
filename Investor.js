@@ -107,28 +107,30 @@ COMMIT TRAN T1
 
   static finalizeTransactionAsync(data) {
     // data: {transactionId, endDate, withdrawValue}
-    if (!data.transactionId || !data.endDate || !data.withdrawValue) {
+    if (!data.transactionId || !data.endDate || !data.withdrawValue || !data.originalValue) {
       //TODO: more validation
       var error = new Error("Invalid input");
       error.status = 400;
       return Promise.reject(error);
     }
 
+    var profit = data.withdrawValue - data.originalValue;
+
     var query = `
 BEGIN TRAN T1
 UPDATE Transaction_Investor
-SET end_date ='${data.endDate}'
+SET end_date ='${data.endDate}', notes = 'Finalize with withdraw value = ${data.withdrawValue}'
 WHERE transactionId='${data.transactionId}'
 
-INSERT INTO [dbo].[Transaction_Investor]
-VALUES(NEWID(), 1, '${data.endDate}', NULL, 0.00, 'Finalize of ${data.transactionId}', -${data.withdrawValue})
+INSERT INTO Transaction_Investor (transactionId, investorId, start_date, rate, value, notes)
+VALUES (NEWID(), 1, '${data.endDate}', null, 0.00, 'Income for transaction ${data.transactionId}', ${profit})
 
 UPDATE Portfolio
 SET number_shares = number_shares - ${data.withdrawValue} 
 WHERE stock_name = 'CASH'
 
 UPDATE Summary_History
-SET capital = capital - ${data.withdrawValue}
+SET capital = capital - ${data.originalValue}
 WHERE timestamp = (SELECT TOP 1 timestamp from [dbo].[Summary_History] ORDER BY timestamp DESC)
 
 COMMIT TRAN T1
