@@ -9,7 +9,8 @@ export default class FinalizeButtonComponent extends React.Component {
     var data = {
       transactionId: this.props.data.transactionId,
       endDate: moment().format('YYYY/MM/DD'),
-      withdrawValue: parseFloat(this.refs.withdrawValue.value)
+      withdrawValue: parseFloat(this.refs.withdrawValue.value),
+      originalValue: parseFloat(this.props.data)
     }
     
     if (isNaN(data.withdrawValue)) {

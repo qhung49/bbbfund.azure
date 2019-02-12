@@ -65,6 +65,7 @@ export default class TransactionTable extends React.Component {
           "Rate": item.rate.toFixed(2),
           "Action": {
             transactionId: item.transactionId,
+            value: item.value,
             finalizeInvestment: temp.bind(this)
           }
         };
