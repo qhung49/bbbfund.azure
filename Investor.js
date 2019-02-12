@@ -43,9 +43,10 @@ order by investorId
     
   static getTransactionsAsync() {
     var query = `
-select transactionId, name, start_date, end_date, rate, value 
+select transactionId, name, start_date, end_date, rate, value
 from Transaction_Investor left join Investor 
 on Investor.investorId = Transaction_Investor.investorId
+where Transaction_Investor.notes = 'From website'
 order by start_date DESC
 `;
     return DatabaseService.executeQueryAsync(query)
