@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import Utilities from './Utilities';
 
 export default class LoginForm extends React.Component {
   constructor(props) {

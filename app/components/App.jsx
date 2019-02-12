@@ -10,6 +10,7 @@ import IndexComparisonTable from './IndexComparisonTable';
 import SummaryTable from './SummaryTable';
 import IndexPerformanceGraph from './IndexPerformanceGraph';
 import TransactionTable from './TransactionTable';
+import * as Utilities from './Utilities.js';
 
 export default class App extends React.Component {
   

@@ -1,6 +1,5 @@
 import React from 'react';
 import Griddle from 'griddle-react';
-import * as Utilities from './Utilities.js';
 import moment from 'moment';
 
 export default class FinalizeButtonComponent extends React.Component {
