@@ -12,6 +12,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --progress",
+    "server": "nodemon server.js",
     "build": "webpack --progress --color",
     "start-production": "npm run build && nodemon server.js",
     "deploy": "echo NOT SUPPORTED YET"
