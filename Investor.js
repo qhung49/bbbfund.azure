@@ -123,7 +123,7 @@ SET end_date ='${data.endDate}', notes = 'Finalize with withdraw value = ${data.
 WHERE transactionId='${data.transactionId}'
 
 INSERT INTO Transaction_Investor (transactionId, investorId, start_date, rate, value, notes)
-VALUES (NEWID(), 1, '${data.endDate}', 0.00, 'Income for transaction ${data.transactionId}', ${profit})
+VALUES (NEWID(), 1, '${data.endDate}', 0.00, ${profit}, 'Income for transaction ${data.transactionId}')
 
 UPDATE Portfolio
 SET number_shares = number_shares - ${data.withdrawValue} 
