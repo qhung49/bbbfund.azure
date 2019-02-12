@@ -6,6 +6,12 @@
   margin-bottom: 20px;
 }
 
+.griddle td {
+  border-bottom-color: #E1E1E1;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
 .dropdown-menu input {
   margin-bottom: 20px;
 }

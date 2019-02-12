@@ -23,9 +23,7 @@ export default class SummaryTable extends React.Component {
             </tr>
             <tr> 
               <td>Profit</td>
-              <td className={"text-right " + (this.props.data.profit >=0 ? "text-success" : "text-danger")}>
-                <strong>{Utilities.numberWithCommas(this.props.data.profit.toFixed(2))}</strong>
-              </td> 
+              <td className={"text-right " + (this.props.data.profit >=0 ? "text-success" : "text-danger")}>{Utilities.numberWithCommas(this.props.data.profit.toFixed(2))}</td> 
             </tr>
             <tr className="info"> 
               <td>Total Value</td><td className="text-right">{Utilities.numberWithCommas(totalValue.toFixed(2))}</td> 

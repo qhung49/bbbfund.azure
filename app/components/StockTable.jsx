@@ -13,16 +13,21 @@ export default class StockTable extends React.Component {
         "Quantity": item.numberShares.toFixed(0),
         "Purchase Price": item.purchasePrice.toFixed(2),
         "Current Price": item.currentPrice.toFixed(2),
-        "Profit (%)": (profit * 100).toFixed(2),
-        "Current Value": item.currentPrice * item.numberShares
+        "Profit (%)": profit,
+        "Current Value": Utilities.numberWithCommas((item.currentPrice * item.numberShares).toFixed(2))
       };
     });
     
     var columnMetadata = [
       {
-        columnName: "Current Value",
+        columnName: "Symbol",
         visible: true,
-        customComponent: CurrentValueComponent
+        customComponent: SymbolComponent
+      },
+      {
+        columnName: "Profit (%)",
+        visible: true,
+        customComponent: ProfitComponent
       }
     ];
     
@@ -34,6 +39,7 @@ export default class StockTable extends React.Component {
                   initialSort="Current Value" 
                   initialSortAscending={false} 
                   columnMetadata={columnMetadata}
+                  useGriddleStyles={true}
                   showFilter={true}
                   resultsPerPage={8}
                   noDataMessage="Loading stock data..." />
@@ -43,10 +49,18 @@ export default class StockTable extends React.Component {
   }
 }
 
-class CurrentValueComponent extends React.Component {
+class SymbolComponent extends React.Component {
   render() {
     return(
-      <div>{Utilities.numberWithCommas(this.props.data.toFixed(2))}</div>
+      <div><strong>{this.props.data}</strong></div>
     );
   }
-} 
+}
+
+class ProfitComponent extends React.Component {
+  render() {
+    return(
+      <div className={this.props.data >= 0 ? "text-success" : "text-danger"}><b>{(this.props.data * 100).toFixed(2)}</b></div>
+    );
+  }
+}
