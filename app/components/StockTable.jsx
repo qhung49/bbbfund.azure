@@ -35,6 +35,7 @@ export default class StockTable extends React.Component {
                   initialSortAscending={false} 
                   columnMetadata={columnMetadata}
                   showFilter={true}
+                  resultsPerPage={8}
                   noDataMessage="Loading stock data..." />
         </div>
       </div>
