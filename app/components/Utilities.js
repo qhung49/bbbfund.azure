@@ -13,3 +13,5 @@ export function isBusinessHour(date) {
   
   return true;
 }
+
+export const refreshIntervalMs = 5000;

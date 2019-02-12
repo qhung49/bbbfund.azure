@@ -105,7 +105,13 @@ export default class App extends React.Component {
     var homeDataSource = App.getFullPathIfLocalEnvironment('api/homeData');
     
     axios.get(homeDataSource)
-      .then(function (response) {
+      .then(response => {
+        if (this.state.stocks == undefined || this.state.stocks.length == 0) {
+          console.log("First page load for stocks");
+        } else {
+          console.log("Refresh stock data");
+        }
+
         this.setState({
           stocks: response.data.stocks,
           indexes: response.data.indexes,
@@ -152,6 +158,9 @@ export default class App extends React.Component {
   
   componentDidMount() {
     this.getHomeData();
+    if (Utilities.isBusinessHour(new Date())) {
+      setInterval(() => this.getHomeData(), Utilities.refreshIntervalMs);
+    }
     
     var tokenJwt = localStorage.getItem('tokenJwt');
     if (tokenJwt) {
