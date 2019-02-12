@@ -49,10 +49,7 @@ export default class App extends React.Component {
   }
   
   addInvestment(investment) {
-    var source = 'api/protected/addInvestment';
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337/' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment('api/protected/addInvestment');
     
     return axios.post(source, investment)
       .then(function() {
@@ -68,10 +65,7 @@ export default class App extends React.Component {
   }
 
   finalizeInvestment(investment) {
-    var source = 'api/protected/finalizeInvestment';
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337/' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment('api/protected/finalizeInvestment');
 
     return axios.post(source, investment)
       .then(function() {
@@ -92,10 +86,7 @@ export default class App extends React.Component {
       'buy': 'api/protected/buyStock',
       'dividend': 'api/protected/addDividend'
     };
-    var source = sourceForType[type];
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337/' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment(sourceForType[type]);
     
     return axios.post(source, data)
       .then(function() {
@@ -111,10 +102,7 @@ export default class App extends React.Component {
   }
   
   getHomeData() {
-    var homeDataSource = 'api/homeData';
-    if (process.env.NODE_ENV === 'development') {
-      homeDataSource = 'http://localhost:1337/' + homeDataSource;
-    }
+    var homeDataSource = App.getFullPathIfLocalEnvironment('api/homeData');
     
     axios.get(homeDataSource)
       .then(function (response) {
@@ -123,14 +111,11 @@ export default class App extends React.Component {
           indexes: response.data.indexes,
           summary: response.data.summary
         })
-      }.bind(this));
+      });
   }
   
   getInvestors() {
-    var source = 'api/protected/investors';
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337/' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment('api/protected/investors');
     
     return axios.get(source)
       .then(function (response) {
@@ -141,10 +126,7 @@ export default class App extends React.Component {
   }
   
   getTransactions() {
-    var source = 'api/protected/transactions';
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337/' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment('api/protected/transactions');
     
     return axios.get(source)
       .then(function (response) {
@@ -155,10 +137,8 @@ export default class App extends React.Component {
   }
   
   getRefreshedToken(tokenJwt) {
-    var source = '/refreshToken';
-    if (process.env.NODE_ENV === 'development') {
-      source = 'http://localhost:1337' + source;
-    }
+    var source = App.getFullPathIfLocalEnvironment('/refreshToken');
+
     return axios.post(source, {token: tokenJwt})
       .then(function(response) {
         this.setState({
@@ -188,10 +168,6 @@ export default class App extends React.Component {
     }
   }
   
-  // componentWillUnmount() {
-  //   this.homeDataRequest.abort();
-  // }
-  
   render() {
     return (
       <div className="container">
@@ -218,5 +194,13 @@ export default class App extends React.Component {
           : null}
       </div>
     );
+  }
+
+  static getFullPathIfLocalEnvironment(path) {
+    if (process.env.NODE_ENV === 'development') {
+      return 'http://localhost:1337/' + path;
+    } else {
+      return path;
+    }
   }
 }
