@@ -19,7 +19,6 @@ export default class App extends React.Component {
     
     this.state = {
       loggedIn: null,
-      displayTime: App.getDisplayTime(new Date()),
       investors: [],
       stocks: [],
       indexes: {
@@ -107,12 +106,6 @@ export default class App extends React.Component {
     
     axios.get(homeDataSource)
       .then(response => {
-        if (this.state.stocks == undefined || this.state.stocks.length == 0) {
-          console.log("First page load for stocks");
-        } else {
-          console.log("Refresh stock data");
-        }
-
         this.setState({
           stocks: response.data.stocks,
           indexes: response.data.indexes,
@@ -125,62 +118,42 @@ export default class App extends React.Component {
     var source = App.getFullPathIfLocalEnvironment('api/protected/investors');
     
     return axios.get(source)
-      .then(function (response) {
-        this.setState({
+      .then(response => this.setState({
           investors: response.data.investors
-        })
-      }.bind(this));
+        }));
   }
   
   getTransactions() {
     var source = App.getFullPathIfLocalEnvironment('api/protected/transactions');
     
     return axios.get(source)
-      .then(function (response) {
-        this.setState({
+      .then(response => this.setState({
           transactions: response.data
-        })
-      }.bind(this));
+        }));
   }
   
   getRefreshedToken(tokenJwt) {
     var source = App.getFullPathIfLocalEnvironment('/refreshToken');
 
     return axios.post(source, {token: tokenJwt})
-      .then(function(response) {
+      .then(response => {
         this.setState({
           loggedIn: response.data.role
         });
         localStorage.setItem("tokenJwt", response.data.token);
         console.log('tokenJwt is refreshed');
         axios.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.token;
-      }.bind(this))
+      });
   }
   
   componentDidMount() {
     this.getHomeData();
     
-    const homeDataRefreshIntervalMs = 10000;
-    const displayTimeRefreshIntervalMs = 1000;
-    if (Utilities.isBusinessHour(new Date())) {
-      this.homeDataInterval = setInterval(() => this.getHomeData(), homeDataRefreshIntervalMs);
-      
-      this.displayTimeInterval = setInterval(() => this.setState({
-          displayTime: App.getDisplayTime(new Date())
-        }), displayTimeRefreshIntervalMs);
-    } else {
-      this.setState({
-        displayTime: "Outside market hours"
-      });
-    }
-    
     var tokenJwt = localStorage.getItem('tokenJwt');
     if (tokenJwt) {
       this.getRefreshedToken(tokenJwt)
-        .then(this.getInvestors.bind(this))
-        .catch(function(err) {
-          this.logout(null);
-        }.bind(this)); 
+        .then(() => this.getInvestors)
+        .catch(err => this.logout(null)); 
     }
     else {
       this.setState({
@@ -188,16 +161,11 @@ export default class App extends React.Component {
       })
     }
   }
-
-  componentWillUnmount() {
-    if (this.homeDataInterval) clearInterval(this.homeDataInterval);
-    if (this.displayTimeInterval) clearInterval(this.displayTimeInterval);
-  }
   
   render() {
     return (
       <div className="container">
-        <Header loggedIn={this.state.loggedIn} displayTime={this.state.displayTime} onClick={this.logout.bind(this)} />
+        <Header loggedIn={this.state.loggedIn} onClick={this.logout.bind(this)} />
         <StockTable data={this.state.stocks} />
         {this.state.loggedIn && this.state.loggedIn === 'admin' ? <StockActionContainer handleStockAction={this.handleStockAction.bind(this)} /> : null}
         {this.state.loggedIn ? <InvestorTable data={this.state.investors} /> : null}
@@ -228,9 +196,5 @@ export default class App extends React.Component {
     } else {
       return path;
     }
-  }
-
-  static getDisplayTime(date) {
-    return "Current time: " + date.toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
   }
 }

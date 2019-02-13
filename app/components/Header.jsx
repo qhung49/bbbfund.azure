@@ -3,7 +3,30 @@ import axios from 'axios';
 import LoginForm from './LoginForm';
 import * as Utilities from './Utilities.js';
 
-export default class Header extends React.Component {  
+export default class Header extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      displayTime: "Outside market hours",
+    }
+  }
+
+  componentDidMount() {
+    const displayTimeRefreshIntervalMs = 1000;
+    if (Utilities.isBusinessHour(new Date())) {
+      this.displayTimeInterval = setInterval(() => this.setState({
+          displayTime: Header.getDisplayTime(new Date())
+        }), displayTimeRefreshIntervalMs);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.displayTimeInterval !== undefined) {
+      clearInterval(this.displayTimeInterval); 
+    }
+  }
+
   render() {
     return (
       <nav className="navbar navbar-inverse">
@@ -24,7 +47,7 @@ export default class Header extends React.Component {
             <ul className="nav navbar-nav">
               <li className="active"><a href="#">Home <span className="sr-only">(current)</span></a></li>
             </ul>
-            <p className="navbar-text">{this.props.displayTime}</p>
+            <p className="navbar-text">{this.state.displayTime}</p>
             <ul className="nav navbar-nav navbar-right">
               {this.props.loggedIn ? <li><a href="#" onClick={this.props.onClick}>Logout</a></li> : <LoginForm />}
             </ul>
@@ -32,5 +55,9 @@ export default class Header extends React.Component {
         </div>
       </nav>
     );
+  }
+
+  static getDisplayTime(date) {
+    return "Current time: " + date.toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
   }
 }
