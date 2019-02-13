@@ -19,6 +19,7 @@ export default class App extends React.Component {
     
     this.state = {
       loggedIn: null,
+      displayTime: App.getDisplayTime(new Date()),
       investors: [],
       stocks: [],
       indexes: {
@@ -158,8 +159,19 @@ export default class App extends React.Component {
   
   componentDidMount() {
     this.getHomeData();
+    
+    const homeDataRefreshIntervalMs = 10000;
+    const displayTimeRefreshIntervalMs = 1000;
     if (Utilities.isBusinessHour(new Date())) {
-      setInterval(() => this.getHomeData(), Utilities.refreshIntervalMs);
+      this.homeDataInterval = setInterval(() => this.getHomeData(), homeDataRefreshIntervalMs);
+      
+      this.displayTimeInterval = setInterval(() => this.setState({
+          displayTime: App.getDisplayTime(new Date())
+        }), displayTimeRefreshIntervalMs);
+    } else {
+      this.setState({
+        displayTime: "Outside market hours"
+      });
     }
     
     var tokenJwt = localStorage.getItem('tokenJwt');
@@ -176,11 +188,16 @@ export default class App extends React.Component {
       })
     }
   }
+
+  componentWillUnmount() {
+    if (this.homeDataInterval) clearInterval(this.homeDataInterval);
+    if (this.displayTimeInterval) clearInterval(this.displayTimeInterval);
+  }
   
   render() {
     return (
       <div className="container">
-        <Header loggedIn={this.state.loggedIn} onClick={this.logout.bind(this)} />
+        <Header loggedIn={this.state.loggedIn} displayTime={this.state.displayTime} onClick={this.logout.bind(this)} />
         <StockTable data={this.state.stocks} />
         {this.state.loggedIn && this.state.loggedIn === 'admin' ? <StockActionContainer handleStockAction={this.handleStockAction.bind(this)} /> : null}
         {this.state.loggedIn ? <InvestorTable data={this.state.investors} /> : null}
@@ -211,5 +228,9 @@ export default class App extends React.Component {
     } else {
       return path;
     }
+  }
+
+  static getDisplayTime(date) {
+    return "Current time: " + date.toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
   }
 }

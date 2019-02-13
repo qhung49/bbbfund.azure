@@ -4,36 +4,6 @@ import LoginForm from './LoginForm';
 import * as Utilities from './Utilities.js';
 
 export default class Header extends React.Component {  
-  
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      time: Header.getDisplayTime(new Date())
-    };
-  }
-
-  componentDidMount() {
-    var now = new Date();
-    if (Utilities.isBusinessHour(now)) {
-      this.intervalID = setInterval(() => this.setState({
-        time: Header.getDisplayTime(now)
-      }), Utilities.refreshIntervalMs);
-    } else {
-      this.setState({
-        time: "Outside market hours"
-      });
-    }
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.intervalID);
-  }
-
-  static getDisplayTime(date) {
-    return "Current time: " + date.toLocaleString('vi-VN', {timeZone: 'Asia/Ho_Chi_Minh'});
-  }
-
   render() {
     return (
       <nav className="navbar navbar-inverse">
@@ -54,7 +24,7 @@ export default class Header extends React.Component {
             <ul className="nav navbar-nav">
               <li className="active"><a href="#">Home <span className="sr-only">(current)</span></a></li>
             </ul>
-            <p className="navbar-text">{this.state.time}</p>
+            <p className="navbar-text">{this.props.displayTime}</p>
             <ul className="nav navbar-nav navbar-right">
               {this.props.loggedIn ? <li><a href="#" onClick={this.props.onClick}>Logout</a></li> : <LoginForm />}
             </ul>
