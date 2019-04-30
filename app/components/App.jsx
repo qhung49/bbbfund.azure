@@ -115,6 +115,7 @@ export default class App extends React.Component {
   }
   
   getInvestors() {
+    console.log("Getting investors data");
     var source = App.getFullPathIfLocalEnvironment('api/protected/investors');
     
     return axios.get(source)
@@ -124,6 +125,7 @@ export default class App extends React.Component {
   }
   
   getTransactions() {
+    console.log("Getting transactions data");
     var source = App.getFullPathIfLocalEnvironment('api/protected/transactions');
     
     return axios.get(source)
@@ -133,7 +135,7 @@ export default class App extends React.Component {
   }
   
   getRefreshedToken(tokenJwt) {
-    var source = App.getFullPathIfLocalEnvironment('/refreshToken');
+    var source = App.getFullPathIfLocalEnvironment('refreshToken');
 
     return axios.post(source, {token: tokenJwt})
       .then(response => {
@@ -152,7 +154,7 @@ export default class App extends React.Component {
     var tokenJwt = localStorage.getItem('tokenJwt');
     if (tokenJwt) {
       this.getRefreshedToken(tokenJwt)
-        .then(() => this.getInvestors)
+        .then(() => this.getInvestors())
         .catch(err => this.logout(null)); 
     }
     else {
