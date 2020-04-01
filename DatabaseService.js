@@ -60,8 +60,8 @@ function executeQuery(query, callback) {
 
 function processMarketData(markets, data) {
   // ignoring first one, the next 2 market data is for VN and VN30
-  for (var i=1; i<3; ++i) {
-    var marketDetails = data[i].split(',');
+  for (var i=0; i<2; ++i) {
+    var marketDetails = data[i+1].split(',');
     markets[i].indexRaw = parseFloat(marketDetails[3]);
     markets[i].index = (parseFloat(marketDetails[3]) / markets[i].startingIndex * 100);
     markets[i].percentageChange = parseFloat(marketDetails[5]);
