@@ -4,7 +4,6 @@ Web app for viewing and managing BBBFund, hosted on Azure https://bbbfund.azurew
 # Azure services
 1. Azure App Service
 2. Azure SQL Database
-3. Azure WebJob
 
 # Development, with Hot Reloading
 #### One time Environment Variable Setup:
