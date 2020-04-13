@@ -6,16 +6,27 @@ export default class StockTable extends React.Component {
   
   render() {
     var results = this.props.data.filter(item => item.name !== 'CASH' && item.numberShares > 0).map( function(item) {
-      var profit = (item.currentPrice - item.purchasePrice) / item.purchasePrice;
+      if (typeof (item.currentPrice) === 'undefined') {
+        return {
+          "Symbol": item.name,
+          "Quantity": item.numberShares.toFixed(0),
+          "Purchase Price": item.purchasePrice.toFixed(2),
+          "Current Price": 'Unknown',
+          "Profit (%)": 'N/A',
+          "Current Value": 'N/A'
+        };
+      } else {
+        var profit = (item.currentPrice - item.purchasePrice) / item.purchasePrice;
       
-      return {
-        "Symbol": item.name,
-        "Quantity": item.numberShares.toFixed(0),
-        "Purchase Price": item.purchasePrice.toFixed(2),
-        "Current Price": item.currentPrice.toFixed(2),
-        "Profit (%)": profit,
-        "Current Value": Utilities.numberWithCommas((item.currentPrice * item.numberShares).toFixed(2))
-      };
+        return {
+          "Symbol": item.name,
+          "Quantity": item.numberShares.toFixed(0),
+          "Purchase Price": item.purchasePrice.toFixed(2),
+          "Current Price": item.currentPrice.toFixed(2),
+          "Profit (%)": profit,
+          "Current Value": Utilities.numberWithCommas((item.currentPrice * item.numberShares).toFixed(2))
+        };
+      }
     });
     
     var columnMetadata = [

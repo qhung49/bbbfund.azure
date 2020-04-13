@@ -4,6 +4,8 @@ import * as Utilities from './Utilities.js';
 export default class SummaryTable extends React.Component {
   render() {
     var totalValue = this.props.data.capital + this.props.data.profit;
+    var stockCurrentValue = this.props.data.stockCurrentValue === null ? 'N/A' : Utilities.numberWithCommas(this.props.data.stockCurrentValue.toFixed(2));
+    var profit = this.props.data.profit === null ? 'N/A' : Utilities.numberWithCommas(this.props.data.profit.toFixed(2));
     return (
       <div>
         <table className="table table-striped table-bordered">
@@ -13,7 +15,7 @@ export default class SummaryTable extends React.Component {
               <td>Stock Purchase Price</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.stockPurchaseValue.toFixed(2))}</td> 
             </tr> 
             <tr> 
-              <td>Stock Current Price</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.stockCurrentValue.toFixed(2))}</td> 
+              <td>Stock Current Price</td><td className="text-right">{stockCurrentValue}</td> 
             </tr>
             <tr> 
               <td>Cash</td><td className="text-right">{Utilities.numberWithCommas(this.props.data.cash.toFixed(2))}</td> 
@@ -23,7 +25,7 @@ export default class SummaryTable extends React.Component {
             </tr>
             <tr> 
               <td>Profit</td>
-              <td className={"text-right " + (this.props.data.profit >=0 ? "text-success" : "text-danger")}>{Utilities.numberWithCommas(this.props.data.profit.toFixed(2))}</td> 
+              <td className={"text-right " + (this.props.data.profit >=0 ? "text-success" : "text-danger")}>{profit}</td> 
             </tr>
             <tr className="info"> 
               <td>Total Value</td><td className="text-right">{Utilities.numberWithCommas(totalValue.toFixed(2))}</td> 
