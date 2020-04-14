@@ -12,9 +12,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --progress",
-    "server": "nodemon server.js",
+    "server": "node server.js",
     "build": "webpack --progress --color",
-    "start-production": "npm run build && nodemon server.js",
+    "start-production": "npm run build && node server.js",
     "deploy": "echo NOT SUPPORTED YET"
   },
   "keywords": [],
@@ -31,7 +31,6 @@
     "jsonwebtoken": "^5.7.0",
     "moment": "^2.12.0",
     "node-cron": "^1.1.1",
-    "nodemon": "^2.0.3",
     "plotly.js": "^1.8.0",
     "react": "^0.14.7",
     "react-datepicker": "^0.24.0",
