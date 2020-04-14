@@ -12,46 +12,32 @@ var DatabaseService = require('./DatabaseService');
 
 var router = express.Router();
 
-var databaseCache = null;
+var homeDataCache = null;
 
-function handleExternalData(externalData) {
-  var handleStockPromise = Promise.resolve();
-  if (externalData.stocks.length !== databaseCache.stocks.length) {
-    handleStockPromise = Stock.getLatestAsync().then(function(lastStocks) {
-      lastStocks.forEach(lastStock => {
-        databaseCache.stocks.find(s => s.name === lastStock.name).currentPrice = lastStock.currentPrice;
-      });
-    });
-  }
-  return handleStockPromise.then(function() {
-    return DatabaseService.constructHomeResponse(databaseCache.stocks, databaseCache.indexes, databaseCache.lastSummary, externalData, 'BBB');
-  });
+function refreshHomeDataCacheAsync() {
+  return axios.all([Stock.getAllAsync(), MarketIndex.getAllAsync(), FundSummary.getLastSummaryAsync(), DatabaseService.getExternalDataAsync()])
+    .then(axios.spread(function(stocks, indexes, lastSummary, externalData) {
+      homeDataCache = DatabaseService.constructHomeResponse(stocks, indexes, lastSummary, externalData, 'BBB');
+      console.log("Home data cache is refreshed");
+    }));
+}
+
+function invalidateCache() {
+  homeDataCache = null;
 }
 
 router.get('/homeData', function(req, res, next) {
-  var getDatabaseCachePromise = Promise.resolve();
-  if (databaseCache) {
-    console.log('homeData from databaseCache');
+  if (homeDataCache) {
+    console.log('homeData from cache');
+    res.json(homeDataCache);
   }
   else {
-    console.log('homeData from compute');
-    getDatabaseCachePromise = axios.all([Stock.getAllAsync(), MarketIndex.getAllAsync(), FundSummary.getLastSummaryAsync()])
-      .then(axios.spread(function(stocks, indexes, lastSummary) {
-        databaseCache = {
-          stocks: stocks,
-          indexes: indexes,
-          lastSummary: lastSummary
-        }
-      }));
+    console.log('Constructing homeData cache and response...');
+    refreshHomeDataCacheAsync().then(function () {
+        res.json(homeDataCache);
+      })
+      .catch(next);;
   }
-  
-  getDatabaseCachePromise
-    .then(DatabaseService.getExternalDataAsync)
-    .then(handleExternalData)
-    .then(function (homeData) {
-      res.json(homeData);
-    })
-    .catch(next);
 })
 
 // Protected data
@@ -89,8 +75,7 @@ router.post('/protected/addInvestment', function(req, res, next) {
   Investor.addTransactionAsync(req.body)
     .then(Investor.getAllAsync)
     .then(function(investors) {
-      // Invalidate cache
-      databaseCache = null;
+      invalidateCache();
       res.json({
         investors: investors
       });
@@ -107,8 +92,7 @@ router.post('/protected/finalizeInvestment', function(req, res, next) {
   }
   Investor.finalizeTransactionAsync(req.body)
     .then(function() {
-      // Invalidate cache
-      databaseCache = null;
+      invalidateCache();
       res.json();
     })
     .catch(next);
@@ -124,7 +108,7 @@ router.post('/protected/buyStock', function(req, res, next) {
   Stock.buyAsync(req.body)
     .then(function() {
       // Invalidate cache
-      databaseCache = null;
+      homeDataCache = null;
       res.json();
     })
     .catch(next);
@@ -139,8 +123,7 @@ router.post('/protected/sellStock', function(req, res, next) {
   }
   Stock.sellAsync(req.body)
     .then(function() {
-      // Invalidate cache
-      databaseCache = null;
+      invalidateCache();
       res.json();
     })
     .catch(next);
@@ -155,8 +138,7 @@ router.post('/protected/addDividend', function(req, res, next) {
   }
   Stock.addDividend(req.body)
     .then(function() {
-      // Invalidate cache
-      databaseCache = null;
+      invalidateCache();
       res.json();
     })
     .catch(next);
@@ -192,14 +174,28 @@ function summarizeDaily() {
       return Promise.all([Stock.summarizeAsync(filteredExternalStocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)]);
     }))
     .then(function() {
-      databaseCache = null;
+      invalidateCache();
+      console.log("Daily summary is done");
     })
-    .catch( function(error) {
+    .catch(function(error) {
       console.log('Error during daily summary:' + error);
+    });
+}
+
+function refreshHomeDataCache() {
+  refreshHomeDataCacheAsync()
+    .catch(function(error) {
+      console.log('Error during refreshing homeData cache:' + error);
     });
 }
 
 // Cron job for daily summary at 8:05 UTC time monday to friday
 cron.schedule('5 0 8 * * 1-5', summarizeDaily);
+
+// Also refresh whenever the app is restarted
+refreshHomeDataCache();
+
+// Cron job for refreshing home data cache every 10 minutes during business hours
+cron.schedule('0 */10 2-8 * * 1-5', refreshHomeDataCache);
 
 module.exports = router;
