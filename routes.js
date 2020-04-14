@@ -14,9 +14,9 @@ var router = express.Router();
 
 var databaseCache = null;
 
-function handleHSCData(hscData) {
+function handleExternalData(externalData) {
   var handleStockPromise = Promise.resolve();
-  if (hscData.stocks.length !== databaseCache.stocks.length) {
+  if (externalData.stocks.length !== databaseCache.stocks.length) {
     handleStockPromise = Stock.getLatestAsync().then(function(lastStocks) {
       lastStocks.forEach(lastStock => {
         databaseCache.stocks.find(s => s.name === lastStock.name).currentPrice = lastStock.currentPrice;
@@ -24,42 +24,34 @@ function handleHSCData(hscData) {
     });
   }
   return handleStockPromise.then(function() {
-    return DatabaseService.constructHomeResponse(databaseCache.stocks, databaseCache.indexes, databaseCache.lastSummary, hscData, 'BBB');
+    return DatabaseService.constructHomeResponse(databaseCache.stocks, databaseCache.indexes, databaseCache.lastSummary, externalData, 'BBB');
   });
 }
 
 router.get('/homeData', function(req, res, next) {
+  var getDatabaseCachePromise = Promise.resolve();
   if (databaseCache) {
     console.log('homeData from databaseCache');
-    DatabaseService.getHSCDataAsync(databaseCache.stocks)
-      .then(handleHSCData)
-      .then(function (homeData) {
-        res.json(homeData);
-      })
-      .catch(next);
   }
   else {
     console.log('homeData from compute');
-    var stocksPromise = Stock.getAllAsync();
-    var HSCDataPromise = stocksPromise.then(function(stocks) {
-      return DatabaseService.getHSCDataAsync(stocks);
-    });
-    
-    axios.all([stocksPromise, MarketIndex.getAllAsync(), FundSummary.getLastSummaryAsync(), HSCDataPromise])
-      .then(axios.spread(function(stocks, indexes, lastSummary, hscData) {
+    getDatabaseCachePromise = axios.all([Stock.getAllAsync(), MarketIndex.getAllAsync(), FundSummary.getLastSummaryAsync()])
+      .then(axios.spread(function(stocks, indexes, lastSummary) {
         databaseCache = {
           stocks: stocks,
           indexes: indexes,
           lastSummary: lastSummary
         }
-        return hscData;
-      }))
-      .then(handleHSCData)
-      .then(function (homeData) {
-        res.json(homeData);
-      })
-      .catch(next); 
+      }));
   }
+  
+  getDatabaseCachePromise
+    .then(DatabaseService.getExternalDataAsync)
+    .then(handleExternalData)
+    .then(function (homeData) {
+      res.json(homeData);
+    })
+    .catch(next);
 })
 
 // Protected data
@@ -176,7 +168,7 @@ function summarizeDaily() {
     return DatabaseService.getHSCDataAsync(stocks);
   });
   
-  axios.all([Investor.getAllAsync(), stocksPromise, MarketIndex.getLatestAsync('BBB'), FundSummary.getLastSummaryAsync(), HSCDataPromise])
+  axios.all([Investor.getAllAsync(), Stock.getAllAsync(), MarketIndex.getLatestAsync('BBB'), FundSummary.getLastSummaryAsync(), HSCDataPromise])
     .then(axios.spread(function(investors, stocks, latestIndex, lastSummary, hscData) {
       DatabaseService.processStockData(stocks, hscData.stocks);
       var stockData = stocks.filter(item => item.name !== 'CASH');
@@ -196,12 +188,12 @@ function summarizeDaily() {
         {name: 'VN30', startingIndex: 615.7, index: 0},
         {name: 'BBB', startingIndex: 100.0, index: 0}
       ];
-      DatabaseService.processMarketData(markets, hscData.markets);
+      DatabaseService.processMarketDataV2(markets, hscData.markets);
       markets[2].index = latestIndex.index * (stockValue + cashValue) / (newCapital + lastSummary.profit);
       markets[2].indexRaw = markets[2].index;
       markets[2].percentageChange = (markets[2].index - latestIndex.index) / latestIndex.index * 100;
       
-      return Promise.all([Stock.summarizeAsync(hscData.stocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)])
+      return Promise.all([Stock.summarizeAsyncV2(hscData.stocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)])
     }))
     .then(function() {
       databaseCache = null;
@@ -212,6 +204,6 @@ function summarizeDaily() {
 }
 
 // Cron job for daily summary at 8:05 UTC time monday to friday
-cron.schedule('5 0 8 * * 1-5', summarizeDaily);
+//cron.schedule('5 0 8 * * 1-5', summarizeDaily);
 
 module.exports = router;

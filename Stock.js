@@ -55,15 +55,27 @@ order by [created]
     });
   }
   
-  static summarizeAsync(stocks) {
+  static summarizeAsync(stockData) {
     var timestamp = (new Date()).toISOString().slice(0,10);
     var query = '';
-    stocks.forEach(function(stockData) {
+    stocks.forEach(function(stock) {
       var stock = stockData.split(',');
       if (stock.length < 12) return;
       query += `
 INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
 VALUES('${timestamp}','${stock[0]}', ${stock[1]}, ${stock[2]}, ${stock[3]}, ${stock[10]}, ${stock[11]})
+`;
+    });
+    return DatabaseService.executeQueryAsync(query);
+  }
+
+  static summarizeAsyncV2(stocks) {
+    var timestamp = (new Date()).toISOString().slice(0,10);
+    var query = '';
+    stocks.forEach(function(stock) {
+      query += `
+INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
+VALUES('${timestamp}','${stock.nane}', ${stock.reference}, ${stock.ceiling}, ${stock.floor}, ${stock.tradePrice}, ${stock.tradeVolume})
 `;
     });
     return DatabaseService.executeQueryAsync(query);
