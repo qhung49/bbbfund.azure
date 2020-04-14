@@ -54,16 +54,14 @@ order by [created]
       });
     });
   }
-  
+
   static summarizeAsync(stocks) {
     var timestamp = (new Date()).toISOString().slice(0,10);
     var query = '';
-    stocks.forEach(function(stockData) {
-      var stock = stockData.split(',');
-      if (stock.length < 12) return;
+    stocks.forEach(function(stock) {
       query += `
 INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
-VALUES('${timestamp}','${stock[0]}', ${stock[1]}, ${stock[2]}, ${stock[3]}, ${stock[10]}, ${stock[11]})
+VALUES('${timestamp}','${stock.name}', ${stock.reference}, ${stock.ceiling}, ${stock.floor}, ${stock.tradePrice}, ${stock.tradeVolume})
 `;
     });
     return DatabaseService.executeQueryAsync(query);
@@ -80,7 +78,7 @@ VALUES('${timestamp}','${stock[0]}', ${stock[1]}, ${stock[2]}, ${stock[3]}, ${st
     data.name = data.name.toUpperCase();
     if (!this.validateStockExists(data.name)) {
       console.log(data.name);
-      error.message = "Stock not found in HSC";
+      error.message = "Stock not found in the system";
       return Promise.reject(error);
     }
     

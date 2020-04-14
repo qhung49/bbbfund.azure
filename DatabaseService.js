@@ -10,7 +10,7 @@ var config = {
   server: 'bbbfund-dbserver.database.windows.net',
   
   options: {
-    database: 'officialdb',
+    database: 'officialdb_x',
     rowCollectionOnRequestCompletion: true,
     encrypt: true // for SQL Azure
   }
@@ -58,42 +58,72 @@ function executeQuery(query, callback) {
   }); 
 }
 
-function processMarketData(markets, data) {
-  // ignoring first one, the next 2 market data is for VN and VN30
+function processMarketData(data) {
+  var markets = [
+    {name: 'VN', startingIndex: 574.3, index: 0}, 
+    {name: 'VN30', startingIndex: 615.7, index: 0},
+    {name: 'BBB', startingIndex: 100.0, index: 0}
+  ];
+
   for (var i=0; i<2; ++i) {
-    var marketDetails = data[i+1].split(',');
-    markets[i].indexRaw = parseFloat(marketDetails[3]);
-    markets[i].index = (parseFloat(marketDetails[3]) / markets[i].startingIndex * 100);
-    markets[i].percentageChange = parseFloat(marketDetails[5]);
+    var rawIndexName = markets[i].name;
+    if (markets[i].name === 'VN') {
+      rawIndexName = 'VNINDEX';
+    }
+    
+    var found = data.find(i => i.name === rawIndexName);
+
+    markets[i].indexRaw = parseFloat(found.index);
+    markets[i].index = (parseFloat(found.index) / markets[i].startingIndex * 100);
+    markets[i].percentageChange = parseFloat(found.percent);
   }
+
+  return markets;
 }
 
+/*
+data:
+[
+  {
+    name (a)
+    reference (b)
+    ceiling (c)
+    floor (d)
+    tradePrice (l)
+    tradeVolume (tb)
+  }
+]
+*/
 function processStockData(stocks, data) {
-  for (var i=0; i< data.length; ++i) {
-    var stockDetails = data[i].split(',');
-    var currentPrice = parseFloat(stockDetails[10]); // trade price
-    if (currentPrice === 0) {
-      currentPrice = parseFloat(stockDetails[1]); // reference price
-    }
-    var found = stocks.find(s => s.name === stockDetails[0]);
-    if (found) {
-      found.currentPrice = currentPrice;
+  for (var i=0; i< stocks.length; ++i) {
+    var found = data.find(s => s.name === stocks[i].name);
+
+    stocks[i].currentPrice = parseFloat(found.tradePrice);
+    if (stocks[i].currentPrice <= 0.1) {
+      stocks[i].currentPrice = parseFloat(found.reference);
     }
   }
 }
 
-function getHSCDataAsync(stocks) {
-  var stockCookie = stocks.map(stock => stock.name).join('|');
-  var headers = { 'Cookie': '_kieHoSESF=' + stockCookie + '; _kieHNXSF=' + stockCookie };
+// From cafef
+function getExternalDataAsync() {
   return axios.all([
-    axios.get('http://priceonline.hsc.com.vn/Process.aspx?Type=MS', {headers: headers}),
-    axios.get('http://priceonline.hsc.com.vn/Process.aspx?Type=MP', {headers: headers}),
+    axios.get('https://banggia.cafef.vn/stockhandler.ashx'),
+    axios.get('https://banggia.cafef.vn/stockhandler.ashx?center=2'),
+    axios.get('https://banggia.cafef.vn/stockhandler.ashx?index=true')
   ])
-    .then(axios.spread(function(hcmResponse, hnResponse) {
-      var marketData = hcmResponse.data.split('^')[0].split('|');
-      var stockData = (hcmResponse.data.split('^')[1] + hnResponse.data.split('^')[1]).split('|');
-      
-      return {markets: marketData, stocks: stockData}; 
+    .then(axios.spread(function(hcmResponse, hnResponse, indexResponse) {
+      var stocks = hcmResponse.data.concat(hnResponse.data).map(raw => {
+        return {
+          name: raw.a,
+          reference: raw.b,
+          ceiling: raw.c,
+          floor: raw.d,
+          tradePrice: raw.l,
+          tradeVolume: raw.tb
+        }
+      });
+      return {markets: indexResponse.data, stocks: stocks}; 
     }));
 }
 
@@ -109,29 +139,22 @@ function isBusinessHour(date) {
   return true;
 }
 
-function constructHomeResponse(stocks, indexes, lastSummary, hscData, fundName) {
+function constructHomeResponse(stocks, indexes, lastSummary, externalData, fundName) {
   var summary = { 
-    markets: [
-      {name: 'VN', startingIndex: 574.3, index: 0}, 
-      {name: 'VN30', startingIndex: 615.7, index: 0},
-      {name: 'BBB', startingIndex: 100.0, index: 0}
-    ]
+    markets: processMarketData(externalData.markets)
   };
-  
-  if (hscData.stocks.length === stocks.length) { // Only process if HSC Data is valid
-    processStockData(stocks, hscData.stocks);
-  }
-  processMarketData(summary.markets, hscData.markets);
-  
+
   var cashData = stocks.find(item => item.name === 'CASH');
+  
   var stockData = stocks.filter(item => item.name !== 'CASH');
+  processStockData(stockData, externalData.stocks);
   
   summary.stockPurchaseValue = stockData.reduce( ((previous,current) => previous + current.purchasePrice * current.numberShares), 0);
   summary.stockCurrentValue = stockData.reduce( ((previous,current) => previous + current.currentPrice * current.numberShares), 0);
   summary.cash = cashData.numberShares * cashData.purchasePrice;
   summary.capital = lastSummary.capital;
   summary.profit = summary.stockCurrentValue + summary.cash - summary.capital;
-  
+
   var fundIndexes = indexes.markets.find(m => m.name === fundName).index;
   
   var fundSummary = summary.markets.find(m => m.name === fundName);
@@ -155,10 +178,10 @@ function constructHomeResponse(stocks, indexes, lastSummary, hscData, fundName) 
   };
 }
 
-module.exports.processStockData = processStockData;
 module.exports.processMarketData = processMarketData;
+module.exports.processStockData = processStockData;
 
-module.exports.getHSCDataAsync = getHSCDataAsync;
+module.exports.getExternalDataAsync = getExternalDataAsync;
 
 module.exports.executeQueryAsync = executeQueryAsync;
 module.exports.executeQuery = executeQuery;
