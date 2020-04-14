@@ -189,7 +189,6 @@ function summarizeDaily() {
         var found = stockData.find(databaseStock => databaseStock.name === externalStock.name);
         return  found !== undefined;
       });
-      console.log(filteredExternalStocks);
       return Promise.all([Stock.summarizeAsync(filteredExternalStocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)]);
     }))
     .then(function() {

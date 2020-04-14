@@ -59,10 +59,9 @@ order by [created]
     var timestamp = (new Date()).toISOString().slice(0,10);
     var query = '';
     stocks.forEach(function(stock) {
-      console.log(stock);
       query += `
 INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
-VALUES('${timestamp}','${stock.nane}', ${stock.reference}, ${stock.ceiling}, ${stock.floor}, ${stock.tradePrice}, ${stock.tradeVolume})
+VALUES('${timestamp}','${stock.name}', ${stock.reference}, ${stock.ceiling}, ${stock.floor}, ${stock.tradePrice}, ${stock.tradeVolume})
 `;
     });
     return DatabaseService.executeQueryAsync(query);
