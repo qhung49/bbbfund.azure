@@ -163,16 +163,13 @@ router.post('/protected/addDividend', function(req, res, next) {
 })
 
 function summarizeDaily() {
-  var stocksPromise = Stock.getAllAsync();
-  var HSCDataPromise = stocksPromise.then(function(stocks) {
-    return DatabaseService.getHSCDataAsync(stocks);
-  });
-  
-  axios.all([Investor.getAllAsync(), Stock.getAllAsync(), MarketIndex.getLatestAsync('BBB'), FundSummary.getLastSummaryAsync(), HSCDataPromise])
-    .then(axios.spread(function(investors, stocks, latestIndex, lastSummary, hscData) {
-      DatabaseService.processStockData(stocks, hscData.stocks);
-      var stockData = stocks.filter(item => item.name !== 'CASH');
+  axios.all([Investor.getAllAsync(), Stock.getAllAsync(), MarketIndex.getLatestAsync('BBB'), FundSummary.getLastSummaryAsync(), DatabaseService.getExternalDataAsync()])
+    .then(axios.spread(function(investors, stocks, latestIndex, lastSummary, externalData) {
       var cashData = stocks.find(s => s.name === 'CASH');
+      
+      var stockData = stocks.filter(item => item.name !== 'CASH');
+      DatabaseService.processStockData(stockData, externalData.stocks);
+      
       var stockValue = stockData.reduce( ((previous,current) => previous + current.currentPrice * current.numberShares), 0);
       var cashValue = cashData.numberShares * cashData.purchasePrice;
       var newCapital = investors.reduce( ((previous,current) => previous + current.total), 0);
@@ -183,17 +180,17 @@ function summarizeDaily() {
         dividend: lastSummary.dividend
       };
       
-      var markets = [
-        {name: 'VN', startingIndex: 574.3, index: 0}, 
-        {name: 'VN30', startingIndex: 615.7, index: 0},
-        {name: 'BBB', startingIndex: 100.0, index: 0}
-      ];
-      DatabaseService.processMarketDataV2(markets, hscData.markets);
+      var markets = DatabaseService.processMarketData(externalData.markets);
       markets[2].index = latestIndex.index * (stockValue + cashValue) / (newCapital + lastSummary.profit);
       markets[2].indexRaw = markets[2].index;
       markets[2].percentageChange = (markets[2].index - latestIndex.index) / latestIndex.index * 100;
       
-      return Promise.all([Stock.summarizeAsyncV2(hscData.stocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)])
+      var filteredExternalStocks = externalData.stocks.filter(externalStock => {
+        var found = stockData.find(databaseStock => databaseStock.name === externalStock.name);
+        return  found !== undefined;
+      });
+      console.log(filteredExternalStocks);
+      return Promise.all([Stock.summarizeAsync(filteredExternalStocks), FundSummary.summarizeAsync(fund), MarketIndex.summarizeAsync(markets)]);
     }))
     .then(function() {
       databaseCache = null;
@@ -204,6 +201,6 @@ function summarizeDaily() {
 }
 
 // Cron job for daily summary at 8:05 UTC time monday to friday
-//cron.schedule('5 0 8 * * 1-5', summarizeDaily);
+cron.schedule('5 0 8 * * 1-5', summarizeDaily);
 
 module.exports = router;

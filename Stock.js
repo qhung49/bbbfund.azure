@@ -54,25 +54,12 @@ order by [created]
       });
     });
   }
-  
-  static summarizeAsync(stockData) {
-    var timestamp = (new Date()).toISOString().slice(0,10);
-    var query = '';
-    stocks.forEach(function(stock) {
-      var stock = stockData.split(',');
-      if (stock.length < 12) return;
-      query += `
-INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
-VALUES('${timestamp}','${stock[0]}', ${stock[1]}, ${stock[2]}, ${stock[3]}, ${stock[10]}, ${stock[11]})
-`;
-    });
-    return DatabaseService.executeQueryAsync(query);
-  }
 
-  static summarizeAsyncV2(stocks) {
+  static summarizeAsync(stocks) {
     var timestamp = (new Date()).toISOString().slice(0,10);
     var query = '';
     stocks.forEach(function(stock) {
+      console.log(stock);
       query += `
 INSERT INTO [dbo].[Stock_History]([timestamp], [name], [reference], [ceiling], [floor], [trade_price], [trade_volume]) 
 VALUES('${timestamp}','${stock.nane}', ${stock.reference}, ${stock.ceiling}, ${stock.floor}, ${stock.tradePrice}, ${stock.tradeVolume})
@@ -92,7 +79,7 @@ VALUES('${timestamp}','${stock.nane}', ${stock.reference}, ${stock.ceiling}, ${s
     data.name = data.name.toUpperCase();
     if (!this.validateStockExists(data.name)) {
       console.log(data.name);
-      error.message = "Stock not found in HSC";
+      error.message = "Stock not found in the system";
       return Promise.reject(error);
     }
     

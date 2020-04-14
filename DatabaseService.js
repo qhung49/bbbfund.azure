@@ -58,17 +58,13 @@ function executeQuery(query, callback) {
   }); 
 }
 
-/*
-data:
-[
-  {
-    name
-    index
-    percent
-  }
-]
-*/
-function processMarketDataV2(markets, data) {
+function processMarketData(data) {
+  var markets = [
+    {name: 'VN', startingIndex: 574.3, index: 0}, 
+    {name: 'VN30', startingIndex: 615.7, index: 0},
+    {name: 'BBB', startingIndex: 100.0, index: 0}
+  ];
+
   for (var i=0; i<2; ++i) {
     var rawIndexName = markets[i].name;
     if (markets[i].name === 'VN') {
@@ -81,6 +77,8 @@ function processMarketDataV2(markets, data) {
     markets[i].index = (parseFloat(found.index) / markets[i].startingIndex * 100);
     markets[i].percentageChange = parseFloat(found.percent);
   }
+
+  return markets;
 }
 
 /*
@@ -96,27 +94,13 @@ data:
   }
 ]
 */
-function processStockDataV2(stocks, data) {
+function processStockData(stocks, data) {
   for (var i=0; i< stocks.length; ++i) {
     var found = data.find(s => s.name === stocks[i].name);
 
     stocks[i].currentPrice = parseFloat(found.tradePrice);
     if (stocks[i].currentPrice <= 0.1) {
       stocks[i].currentPrice = parseFloat(found.reference);
-    }
-  }
-}
-
-function processStockData(stocks, data) {
-  for (var i=0; i< data.length; ++i) {
-    var stockDetails = data[i].split(',');
-    var currentPrice = parseFloat(stockDetails[10]); // trade price
-    if (currentPrice === 0) {
-      currentPrice = parseFloat(stockDetails[1]); // reference price
-    }
-    var found = stocks.find(s => s.name === stockDetails[0]);
-    if (found) {
-      found.currentPrice = currentPrice;
     }
   }
 }
@@ -143,24 +127,6 @@ function getExternalDataAsync() {
     }));
 }
 
-function getHSCDataAsync(stocks) {
-  var stockCookie = stocks.map(stock => stock.name).join('|');
-  var headers = { 'Cookie': '_kieHoSESF=' + stockCookie + '; _kieHNXSF=' + stockCookie };
-  return axios.all([
-    axios.get('http://priceonline.hsc.com.vn/Process.aspx?Type=MS', {headers: headers}),
-    axios.get('http://priceonline.hsc.com.vn/Process.aspx?Type=MP', {headers: headers}),
-  ])
-    .then(axios.spread(function(hcmResponse, hnResponse) {
-      // -100,0,0,1082.49,13.82,1.29,214258871,3211006000000,204,99,79
-      var marketData = hcmResponse.data.split('^')[0].split('|');
-      
-      // ANV,16.75,17.9,15.6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6057.4K,0,0,0,0,0,0,0,0
-      var stockData = (hcmResponse.data.split('^')[1] + hnResponse.data.split('^')[1]).split('|');
-      
-      return {markets: marketData, stocks: stockData}; 
-    }));
-}
-
 function isBusinessHour(date) {
   if (date.getUTCDay() === 0 || date.getUTCDay() === 6) { // Saturday and Sunday
     return false;
@@ -175,19 +141,13 @@ function isBusinessHour(date) {
 
 function constructHomeResponse(stocks, indexes, lastSummary, externalData, fundName) {
   var summary = { 
-    markets: [
-      {name: 'VN', startingIndex: 574.3, index: 0}, 
-      {name: 'VN30', startingIndex: 615.7, index: 0},
-      {name: 'BBB', startingIndex: 100.0, index: 0}
-    ]
+    markets: processMarketData(externalData.markets)
   };
-  
-  processMarketDataV2(summary.markets, externalData.markets);
-  
+
   var cashData = stocks.find(item => item.name === 'CASH');
   
   var stockData = stocks.filter(item => item.name !== 'CASH');
-  processStockDataV2(stockData, externalData.stocks);
+  processStockData(stockData, externalData.stocks);
   
   summary.stockPurchaseValue = stockData.reduce( ((previous,current) => previous + current.purchasePrice * current.numberShares), 0);
   summary.stockCurrentValue = stockData.reduce( ((previous,current) => previous + current.currentPrice * current.numberShares), 0);
@@ -218,10 +178,9 @@ function constructHomeResponse(stocks, indexes, lastSummary, externalData, fundN
   };
 }
 
+module.exports.processMarketData = processMarketData;
 module.exports.processStockData = processStockData;
-module.exports.processMarketDataV2 = processMarketDataV2;
 
-module.exports.getHSCDataAsync = getHSCDataAsync;
 module.exports.getExternalDataAsync = getExternalDataAsync;
 
 module.exports.executeQueryAsync = executeQueryAsync;
